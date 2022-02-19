@@ -7,19 +7,19 @@ import (
 	"net/http"
 )
 
-type Article struct {
-	Title   string "json:\"Title\""
-	Desc    string "json:\"Desc\""
-	Content string "json:\"Content\""
+type Data struct {
+	Key   string "json:\"Key\""
+	Value string "json:\"Value\""
 }
-type Articles []Article
+type Datas map[string]Data
 
-func allArticles(w http.ResponseWriter, r *http.Request) {
-	articles := Articles{
-		Article{Title: "Test Title", Desc: "Test Desc", Content: "Hello World"},
+func allDatas(w http.ResponseWriter, r *http.Request) {
+	datas := Datas{
+		"Test_Key0": Data{Key: "Test_Key0", Value: "Test_Value0"},
+		"Test_Key1": Data{Key: "Test_Key1", Value: "Test_Value1"},
 	}
-	fmt.Println("EndPoint Hit: All Articles EndPoint")
-	json.NewEncoder(w).Encode(articles)
+	fmt.Println("EndPoint Hit: All Datas EndPoint")
+	json.NewEncoder(w).Encode(datas)
 }
 
 func homepage(w http.ResponseWriter, r *http.Request) {
@@ -27,24 +27,6 @@ func homepage(w http.ResponseWriter, r *http.Request) {
 }
 func handleRequests() {
 	http.HandleFunc("/", homepage)
-	http.HandleFunc("/articles", allArticles)
+	http.HandleFunc("/datas", allDatas)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
-
-/* func NewReq() req {
-	temp := new(req)
-	temp.datas = make(map[string]string)
-	temp.datas["0"] = "zero"
-	temp.datas["1"] = "one"
-
-	return *temp
-}
-func (r req) Get(key string) {
-
-}
-func (r req) Set(key string, value string) {
-
-}
-func (r req) Flush() {
-
-} */
