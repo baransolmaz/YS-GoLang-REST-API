@@ -70,8 +70,10 @@ func (d Datas) put(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("EndPoint Hit: SET EndPoint")
 	w.WriteHeader(http.StatusNoContent) //204
 }
-func (d Datas) delete(w http.ResponseWriter, r *http.Request) {
-
+func (d *Datas) delete(w http.ResponseWriter, r *http.Request) {
+	*d = Datas{}
+	fmt.Println("EndPoint Hit: DELETE EndPoint")
+	w.WriteHeader(http.StatusNoContent) //204
 }
 func (d *Datas) datas(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -84,6 +86,7 @@ func (d *Datas) datas(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 		d.delete(w, r)
 		return
+
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Write([]byte("Method Not Allowed\n"))
