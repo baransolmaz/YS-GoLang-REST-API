@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Data struct {
@@ -43,7 +44,6 @@ func (d Datas) get(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(data)
 	fmt.Println("EndPoint Hit: GET EndPoint")
 	json.NewEncoder(w).Encode(d[data.Key])
-
 }
 func (d Datas) put(w http.ResponseWriter, r *http.Request) {
 	bodybytes, err := ioutil.ReadAll(r.Body)
@@ -102,9 +102,22 @@ func (d Datas) view(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "VIEW EndPoint Hit\n\n")
 	json.NewEncoder(w).Encode(d)
 }
+func (d Datas) saveJson() {
+	tm := time.Now()
+	name := tm.Format("02-01-2006;15:04:05")
+	file, _ := json.MarshalIndent(d, "", " ")
+	ioutil.WriteFile(name+".json", file, 0666)
+}
 func handleRequests() {
 	datas := newDatas()
 	http.HandleFunc("/", datas.homepage)
 	http.HandleFunc("/datas", datas.datas)
+	go func() {
+		for {
+			time.Sleep(time.Second * 10)
+			datas.saveJson()
+		}
+	}()
 	log.Fatal(http.ListenAndServe(":8080", nil))
+
 }
