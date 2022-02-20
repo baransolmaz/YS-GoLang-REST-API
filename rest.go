@@ -86,7 +86,9 @@ func (d *Datas) datas(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 		d.delete(w, r)
 		return
-
+	case "VIEW":
+		d.view(w, r)
+		return
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Write([]byte("Method Not Allowed\n"))
@@ -96,7 +98,10 @@ func (d *Datas) datas(w http.ResponseWriter, r *http.Request) {
 func (d Datas) homepage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Homepage EndPoint Hit")
 }
-
+func (d Datas) view(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "VIEW EndPoint Hit\n\n")
+	json.NewEncoder(w).Encode(d)
+}
 func handleRequests() {
 	datas := newDatas()
 	http.HandleFunc("/", datas.homepage)
