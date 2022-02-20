@@ -46,7 +46,29 @@ func (d Datas) get(w http.ResponseWriter, r *http.Request) {
 
 }
 func (d Datas) put(w http.ResponseWriter, r *http.Request) {
-
+	bodybytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError) //500
+		w.Write([]byte(err.Error()))
+		return
+	}
+	var data Data
+	err = json.Unmarshal(bodybytes, &data)
+	if err != nil {
+		w.WriteHeader(http.StatusBadGateway) //502
+		w.Write([]byte(err.Error()))
+		return
+	}
+	//Key yoksa eklemez
+	/* if _, ok := d[data.Key]; !ok {
+		w.WriteHeader(http.StatusNotFound)//404
+		w.Write([]byte("Key Not Found\n"))
+		return
+	} */
+	fmt.Println(data)
+	d[data.Key] = data.Value
+	fmt.Println("EndPoint Hit: SET EndPoint")
+	w.WriteHeader(http.StatusNoContent) //204
 }
 func (d Datas) delete(w http.ResponseWriter, r *http.Request) {
 
