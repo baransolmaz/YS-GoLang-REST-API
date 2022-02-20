@@ -6,6 +6,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -16,10 +20,8 @@ type Data struct {
 type Datas map[string]string
 
 func newDatas() *Datas {
-	return &Datas{
-		"Test_Key0": "Test_Value0",
-		"Test_Key1": "Test_Value1",
-	}
+	var d Datas
+	return d.loadJson()
 }
 func (d Datas) get(w http.ResponseWriter, r *http.Request) {
 	bodybytes, err := ioutil.ReadAll(r.Body)
@@ -103,21 +105,61 @@ func (d Datas) view(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(d)
 }
 func (d Datas) saveJson() {
-	tm := time.Now()
-	name := tm.Format("02-01-2006;15:04:05")
+	tm := time.Now().Unix() //Timestamp
 	file, _ := json.MarshalIndent(d, "", " ")
-	ioutil.WriteFile(name+".json", file, 0666)
+	current, _ := os.Getwd()
+	ioutil.WriteFile(current+"/tmp/"+strconv.FormatInt(tm, 10)+".json", file, 0666)
+}
+
+func (d Datas) loadJson() *Datas {
+	current, _ := os.Getwd()
+	list, _ := filepath.Glob(current + "/tmp/*.json") //Read all .json files
+	if list == nil {
+		return &Datas{
+			"Test_Key0": "Test_Value0",
+			"Test_Key1": "Test_Value1",
+		}
+	}
+	lastFile := last(list)
+	byteSlice, _ := ioutil.ReadFile(lastFile)
+	saved := Datas{}
+	json.Unmarshal(byteSlice, &saved)
+	return &saved
+
 }
 func handleRequests() {
 	datas := newDatas()
 	http.HandleFunc("/", datas.homepage)
 	http.HandleFunc("/datas", datas.datas)
 	go func() {
+		if _, err := os.Stat("tmp"); os.IsNotExist(err) {
+			os.Mkdir("tmp", 0755)
+		}
 		for {
 			time.Sleep(time.Second * 10)
+
 			datas.saveJson()
 		}
 	}()
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
+}
+func last(arr []string) string {
+	if len(arr) == 2 {
+		if strings.Compare(arr[0], arr[1]) == 1 {
+			return arr[0]
+		}
+		return arr[1]
+	} else if len(arr) == 1 {
+		return arr[0]
+	}
+
+	var mid int = len(arr) / 2
+
+	left := last(arr[:mid])
+	right := last(arr[mid:])
+	if strings.Compare(left, right) == 1 {
+		return left
+	}
+	return right
 }
