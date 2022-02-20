@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+const sec = 10
+
 type Data struct {
 	Key   string "json:\"Key\""
 	Value string "json:\"Value\""
@@ -79,19 +81,19 @@ func (d *Datas) delete(w http.ResponseWriter, r *http.Request) {
 }
 func (d *Datas) datas(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case "GET": //Get Endpoint
 		d.get(w, r)
 		return
-	case "PUT":
+	case "PUT": //Put/Set Endpoint
 		d.put(w, r)
 		return
-	case "DELETE":
+	case "DELETE": //Delete/Flush Endpoint
 		d.delete(w, r)
 		return
-	case "VIEW":
+	case "VIEW": //View Endpoint for listing all datas
 		d.view(w, r)
 		return
-	default:
+	default: //Not Supported Endpoints
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Write([]byte("Method Not Allowed\n"))
 		return
@@ -101,18 +103,19 @@ func (d Datas) homepage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Homepage EndPoint Hit")
 }
 func (d Datas) view(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("EndPoint Hit: VIEW EndPoint")
 	fmt.Fprintf(w, "VIEW EndPoint Hit\n\n")
 	json.NewEncoder(w).Encode(d)
 }
 func (d Datas) saveJson() {
-	tm := time.Now().Unix() //Timestamp
-	file, _ := json.MarshalIndent(d, "", " ")
-	current, _ := os.Getwd()
-	ioutil.WriteFile(current+"/tmp/"+strconv.FormatInt(tm, 10)+".json", file, 0666)
+	tm := time.Now().Unix()                                                         //Timestamp
+	file, _ := json.MarshalIndent(d, "", " ")                                       //Json to byte with indent
+	current, _ := os.Getwd()                                                        //Get current directory path
+	ioutil.WriteFile(current+"/tmp/"+strconv.FormatInt(tm, 10)+".json", file, 0666) //Write in File
 }
 
 func (d Datas) loadJson() *Datas {
-	current, _ := os.Getwd()
+	current, _ := os.Getwd()                          //Get current directory path
 	list, _ := filepath.Glob(current + "/tmp/*.json") //Read all .json files
 	if list == nil {
 		return &Datas{
@@ -131,19 +134,20 @@ func handleRequests() {
 	datas := newDatas()
 	http.HandleFunc("/", datas.homepage)
 	http.HandleFunc("/datas", datas.datas)
-	go func() {
-		if _, err := os.Stat("tmp"); os.IsNotExist(err) {
+	go func() { //Go routine
+		if _, err := os.Stat("tmp"); os.IsNotExist(err) { //Checks if 'tmp' folder exist
 			os.Mkdir("tmp", 0755)
 		}
-		for {
-			time.Sleep(time.Second * 10)
-
+		for { //Every 10 second,saves into a file
+			time.Sleep(time.Second * sec)
 			datas.saveJson()
 		}
 	}()
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
+
+//Returns Last Created File Name
 func last(arr []string) string {
 	if len(arr) == 2 {
 		if strings.Compare(arr[0], arr[1]) == 1 {
@@ -153,9 +157,7 @@ func last(arr []string) string {
 	} else if len(arr) == 1 {
 		return arr[0]
 	}
-
 	var mid int = len(arr) / 2
-
 	left := last(arr[:mid])
 	right := last(arr[mid:])
 	if strings.Compare(left, right) == 1 {
