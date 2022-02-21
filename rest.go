@@ -23,7 +23,7 @@ type Datas map[string]string
 
 func newDatas() *Datas {
 	var d Datas
-	return d.loadJson()
+	return d.loadJson("tmp")
 }
 func (d Datas) get(w http.ResponseWriter, r *http.Request) {
 	bodybytes, err := ioutil.ReadAll(r.Body)
@@ -107,16 +107,16 @@ func (d Datas) view(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "VIEW EndPoint Hit\n\n")
 	json.NewEncoder(w).Encode(d)
 }
-func (d Datas) saveJson() {
-	tm := time.Now().Unix()                                                         //Timestamp
-	file, _ := json.MarshalIndent(d, "", " ")                                       //Json to byte with indent
-	current, _ := os.Getwd()                                                        //Get current directory path
-	ioutil.WriteFile(current+"/tmp/"+strconv.FormatInt(tm, 10)+".json", file, 0666) //Write in File
+func (d Datas) saveJson(fileName string) {
+	tm := time.Now().Unix()                                                                  //Timestamp
+	file, _ := json.MarshalIndent(d, "", " ")                                                //Json to byte with indent
+	current, _ := os.Getwd()                                                                 //Get current directory path
+	ioutil.WriteFile(current+"/"+fileName+"/"+strconv.FormatInt(tm, 10)+".json", file, 0666) //Write in File
 }
 
-func (d Datas) loadJson() *Datas {
-	current, _ := os.Getwd()                          //Get current directory path
-	list, _ := filepath.Glob(current + "/tmp/*.json") //Read all .json files
+func (d Datas) loadJson(fileName string) *Datas {
+	current, _ := os.Getwd()                                       //Get current directory path
+	list, _ := filepath.Glob(current + "/" + fileName + "/*.json") //Read all .json files
 	if list == nil {
 		return &Datas{
 			"Test_Key0": "Test_Value0",
@@ -140,7 +140,7 @@ func handleRequests() {
 		}
 		for { //Every 10 second,saves into a file
 			time.Sleep(time.Second * sec)
-			datas.saveJson()
+			datas.saveJson("tmp")
 		}
 	}()
 	log.Fatal(http.ListenAndServe(":8080", nil))
