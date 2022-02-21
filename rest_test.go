@@ -88,3 +88,19 @@ func TestPutRequest(t *testing.T) {
 	}
 
 }
+func TestViewRequest(t *testing.T) {
+	req := httptest.NewRequest("VIEW", "/datas", nil)
+	w := httptest.NewRecorder()
+	d := Datas{}
+	current, _ := os.Getwd()
+	name := []string{(current + "/tmp/test.json")}
+	read := *d.loadJson(name)
+	read.datas(w, req)
+	res := w.Result()
+
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Status Not Ok")
+	}
+
+}
