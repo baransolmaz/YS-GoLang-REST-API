@@ -23,7 +23,9 @@ type Datas map[string]string
 
 func newDatas() *Datas {
 	var d Datas
-	return d.loadJson("tmp")
+	current, _ := os.Getwd()                          //Get current directory path
+	list, _ := filepath.Glob(current + "/tmp/*.json") //Read all .json files
+	return d.loadJson(list)
 }
 func (d Datas) get(w http.ResponseWriter, r *http.Request) {
 	bodybytes, err := ioutil.ReadAll(r.Body)
@@ -33,19 +35,18 @@ func (d Datas) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var data Data
-
 	err = json.Unmarshal(bodybytes, &data)
 	if err != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		w.Write([]byte("No Key Found"))
 		return
 	}
-	if _, ok := d[data.Key]; !ok {
+	if _, ok := d[data.Key]; !ok { //To check wanted key exist
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Key Not Found\n"))
 		return
 	}
-	fmt.Println(data)
+	//fmt.Println(data) //To see wanted key
 	fmt.Println("EndPoint Hit: GET EndPoint")
 	json.NewEncoder(w).Encode(d[data.Key])
 }
@@ -108,25 +109,22 @@ func (d Datas) view(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(d)
 }
 func (d Datas) saveJson(fileName string) {
-	tm := time.Now().Unix()                                                                  //Timestamp
-	file, _ := json.MarshalIndent(d, "", " ")                                                //Json to byte with indent
-	current, _ := os.Getwd()                                                                 //Get current directory path
-	ioutil.WriteFile(current+"/"+fileName+"/"+strconv.FormatInt(tm, 10)+".json", file, 0666) //Write in File
-}
-
-func (d Datas) loadJson(fileName string) *Datas {
+	file, _ := json.MarshalIndent(d, "", " ")                      //Json to byte with indent
 	current, _ := os.Getwd()                                       //Get current directory path
-	list, _ := filepath.Glob(current + "/" + fileName + "/*.json") //Read all .json files
-	if list == nil {
-		return &Datas{
+	ioutil.WriteFile(current+"/tmp/"+fileName+".json", file, 0666) //Write in File
+}
+func (d Datas) loadJson(fileName []string) *Datas {
+	if fileName == nil { //No Json file exist
+		return &Datas{ //Create New
 			"Test_Key0": "Test_Value0",
 			"Test_Key1": "Test_Value1",
 		}
 	}
-	lastFile := last(list)
-	byteSlice, _ := ioutil.ReadFile(lastFile)
+	//Json Files exist
+	lastFile := last(fileName)                //Get Last Created File
+	byteSlice, _ := ioutil.ReadFile(lastFile) //Read file
 	saved := Datas{}
-	json.Unmarshal(byteSlice, &saved)
+	json.Unmarshal(byteSlice, &saved) //Save in
 	return &saved
 
 }
@@ -136,11 +134,12 @@ func handleRequests() {
 	http.HandleFunc("/datas", datas.datas)
 	go func() { //Go routine
 		if _, err := os.Stat("tmp"); os.IsNotExist(err) { //Checks if 'tmp' folder exist
-			os.Mkdir("tmp", 0755)
+			os.Mkdir("tmp", 0755) //if not creates
 		}
 		for { //Every 10 second,saves into a file
 			time.Sleep(time.Second * sec)
-			datas.saveJson("tmp")
+			tm := time.Now().Unix() //Timestamp
+			datas.saveJson(strconv.FormatInt(tm, 10))
 		}
 	}()
 	log.Fatal(http.ListenAndServe(":8080", nil))
