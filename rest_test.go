@@ -88,3 +88,40 @@ func TestPutRequest(t *testing.T) {
 	}
 
 }
+func TestViewRequest(t *testing.T) {
+	req := httptest.NewRequest("VIEW", "/datas", nil)
+	w := httptest.NewRecorder()
+	d := Datas{}
+	current, _ := os.Getwd()
+	name := []string{(current + "/tmp/test.json")}
+	read := *d.loadJson(name)
+	read.datas(w, req)
+	res := w.Result()
+
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Status Not Ok")
+	}
+}
+func TestDeleteRequest(t *testing.T) {
+	req := httptest.NewRequest(http.MethodDelete, "/datas", nil)
+	w := httptest.NewRecorder()
+	d := Datas{}
+	current, _ := os.Getwd()
+	name := []string{(current + "/tmp/test.json")}
+	read := *d.loadJson(name)
+	read.datas(w, req)
+	res := w.Result()
+
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusNoContent {
+		t.Errorf("Status No Content")
+	}
+	if len(read) != 0 {
+		t.Errorf("Expected: 0, Size: %d", len(read))
+	}
+	if read["Key"] != "" {
+		t.Errorf("Expected: \"\", Recieved: %s", read["Key"])
+	}
+
+}
