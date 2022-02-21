@@ -1,7 +1,10 @@
 package main
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -43,4 +46,26 @@ func TestFileSave(t *testing.T) {
 		t.Errorf("Expected: test2, Recieved: %s", read["test2"])
 	}
 	os.Remove(current + "/tmp/testsave.json")
+}
+func TestGetRequest(t *testing.T) {
+	bodyReader := strings.NewReader("{\"Key\":\"Test_Key0\"}")
+	req := httptest.NewRequest(http.MethodGet, "/datas", bodyReader)
+	w := httptest.NewRecorder()
+	d := Datas{}
+	current, _ := os.Getwd()
+	name := []string{(current + "/tmp/test.json")}
+	read := *d.loadJson(name)
+	read.get(w, req)
+	res := w.Result()
+
+	defer res.Body.Close()
+	//data, err := ioutil.ReadAll(res.Body)
+	if res.StatusCode == http.StatusInternalServerError {
+		t.Errorf("Status Internal Server Error")
+	} else if res.StatusCode == http.StatusBadGateway {
+		t.Errorf("Status Bad Gateway")
+	} else if res.StatusCode == http.StatusNotFound {
+		t.Errorf("Status Not Found")
+	}
+
 }
