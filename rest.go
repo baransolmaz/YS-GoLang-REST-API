@@ -108,12 +108,12 @@ func (d Datas) view(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(d)
 }
 func (d Datas) saveJson(fileName string) {
-	file, _ := json.MarshalIndent(d, "", " ")                      //Json to byte with indent
-	current, _ := os.Getwd()                                       //Get current directory path
-	ioutil.WriteFile(current+"/tmp/"+fileName+".json", file, 0666) //Write in File
+	byteSlice, _ := json.MarshalIndent(d, "", " ")                      //Json to byte with indent
+	current, _ := os.Getwd()                                            //Get current directory path
+	ioutil.WriteFile(current+"/tmp/"+fileName+".json", byteSlice, 0666) //Write in File
 }
 func (d Datas) loadJson(fileName []string) *Datas {
-	if fileName == nil { //No Json file exist
+	if len(fileName) == 0 { //No Json file exist
 		return &Datas{ //Create New
 			"Test_Key0": "Test_Value0",
 			"Test_Key1": "Test_Value1",
