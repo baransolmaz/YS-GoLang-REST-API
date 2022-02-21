@@ -28,20 +28,20 @@ func newDatas() *Datas {
 	return d.loadJson(list)
 }
 func (d Datas) get(w http.ResponseWriter, r *http.Request) {
-	bodybytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
+	bodybytes, err := ioutil.ReadAll(r.Body) //To read wanted key
+	if err != nil {                          //To check the reading if it is successful or not
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
 	var data Data
-	err = json.Unmarshal(bodybytes, &data)
-	if err != nil {
+	err = json.Unmarshal(bodybytes, &data) //Convert []byte to json
+	if err != nil {                        //To check whether the key was sent
 		w.WriteHeader(http.StatusBadGateway)
 		w.Write([]byte("No Key Found"))
 		return
 	}
-	if _, ok := d[data.Key]; !ok { //To check wanted key exist
+	if _, ok := d[data.Key]; !ok { //To check the wanted key exist
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("Key Not Found\n"))
 		return
@@ -51,32 +51,31 @@ func (d Datas) get(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(d[data.Key])
 }
 func (d Datas) put(w http.ResponseWriter, r *http.Request) {
-	bodybytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
+	bodybytes, err := ioutil.ReadAll(r.Body) //To read data
+	if err != nil {                          //To check the reading if it is successful or not
 		w.WriteHeader(http.StatusInternalServerError) //500
 		w.Write([]byte(err.Error()))
 		return
 	}
 	var data Data
-	err = json.Unmarshal(bodybytes, &data)
-	if err != nil {
+	err = json.Unmarshal(bodybytes, &data) //Convert []byte to json
+	if err != nil {                        //To check whether the key was sent
 		w.WriteHeader(http.StatusBadGateway) //502
 		w.Write([]byte(err.Error()))
 		return
 	}
-	//Key yoksa eklemez
-	/* if _, ok := d[data.Key]; !ok {
+	/* if _, ok := d[data.Key]; !ok {//To check the wanted key exist
 		w.WriteHeader(http.StatusNotFound)//404
 		w.Write([]byte("Key Not Found\n"))
 		return
 	} */
-	fmt.Println(data)
-	d[data.Key] = data.Value
+	//fmt.Println(data) //To see wanted key
+	d[data.Key] = data.Value //Update or add new key/value
 	fmt.Println("EndPoint Hit: SET EndPoint")
 	w.WriteHeader(http.StatusNoContent) //204
 }
 func (d *Datas) delete(w http.ResponseWriter, r *http.Request) {
-	*d = Datas{}
+	*d = Datas{} //Empty Map
 	fmt.Println("EndPoint Hit: DELETE EndPoint")
 	w.WriteHeader(http.StatusNoContent) //204
 }
@@ -126,7 +125,6 @@ func (d Datas) loadJson(fileName []string) *Datas {
 	saved := Datas{}
 	json.Unmarshal(byteSlice, &saved) //Save in
 	return &saved
-
 }
 func handleRequests() {
 	datas := newDatas()
