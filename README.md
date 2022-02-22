@@ -12,12 +12,12 @@ Requests:
 &nbsp; &nbsp;Sends all pairs  
   
 Respond Codes:  
-&nbsp; StatusInternalServerError  : 500  
-&nbsp; StatusBadGateway           : 502  
-&nbsp; StatusNotFound             : 404  
-&nbsp; StatusNoContent            : 204  
-&nbsp; StatusMethodNotAllowed     : 405  
-&nbsp; StatusOK                   : 200  
+&nbsp; StatusInternalServerError -: 500  
+&nbsp; StatusBadGateway ----------: 502  
+&nbsp; StatusNotFound ------------: 404  
+&nbsp; StatusNoContent -----------: 204  
+&nbsp; StatusMethodNotAllowed ----: 405  
+&nbsp; StatusOK ------------------: 200  
   
 Note:  
 &nbsp; If you want the put request does not create new pair when the given key is not exist,you need to toggle block comment.  
