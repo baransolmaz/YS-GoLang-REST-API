@@ -1,23 +1,42 @@
-# YS-GoLang-REST-API
-A REST-API service that works as an in memory key-value store  
 
-Requests:  
-&nbsp; -GET  
-&nbsp; &nbsp;Takes a key string and returns the value of the key.If the key is exist, responds 200;if not responds 404  
-&nbsp; -PUT  
-&nbsp; &nbsp;Takes a key-value string pair and updates the value of the given key.If the key is not exist, creates it  
-&nbsp; -DELETE  
-&nbsp; &nbsp;Removes all pairs  
-&nbsp; -VIEW  
-&nbsp; &nbsp;Sends all pairs  
+# YS-GoLang-REST-API
+
+A REST-API service that works as an in memory key-value store
+
   
-Respond Codes:  
-&nbsp; StatusInternalServerError -: 500  
-&nbsp; StatusBadGateway ----------: 502  
-&nbsp; StatusNotFound ------------: 404  
-&nbsp; StatusNoContent -----------: 204  
-&nbsp; StatusMethodNotAllowed ----: 405  
-&nbsp; StatusOK ------------------: 200  
-  
-Note:  
-&nbsp; If you want the put request does not create new pair when the given key is not exist,you need to toggle block comment.  
+
+Requests:
+
+&emsp; -GET
+
+&emsp;  &emsp; Takes a key string and returns the value of the key.If the key is exist, responds 200;if not responds 404
+
+&emsp; -PUT
+
+&emsp;  &emsp; Takes a key-value string pair and updates the value of the given key.If the key is not exist, creates it
+
+&emsp; -DELETE
+
+&emsp;  &emsp; Removes all pairs
+
+&emsp; -VIEW
+
+&emsp;  &emsp; Sends all pairs
+
+Respond Codes:
+
+&emsp; StatusInternalServerError &emsp; : 500
+
+&emsp; StatusBadGateway &emsp; &emsp; &emsp; &emsp;: 502
+
+&emsp; StatusNotFound &emsp; &emsp; &emsp;&emsp;&emsp;&emsp;: 404
+
+&emsp; StatusNoContent &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;: 204
+
+&emsp; StatusMethodNotAllowed &emsp;: 405
+
+&emsp; StatusOK &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; &emsp; &emsp;: 200
+
+Note:
+
+&emsp; If you want the put request does not create new pair when the given key is not exist,you need to toggle block comment.
