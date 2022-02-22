@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const sec = 10
+const min = 1
 
 type Data struct {
 	Key   string "json:\"Key\""
@@ -126,7 +126,7 @@ func (d Datas) loadJson(fileName []string) *Datas {
 	json.Unmarshal(byteSlice, &saved) //Save in
 	return &saved
 }
-func handleRequests() {
+func handleRequests(port string) {
 	datas := newDatas()
 	http.HandleFunc("/", datas.homepage)
 	http.HandleFunc("/datas", datas.datas)
@@ -134,13 +134,13 @@ func handleRequests() {
 		if _, err := os.Stat("tmp"); os.IsNotExist(err) { //Checks if 'tmp' folder exist
 			os.Mkdir("tmp", 0755) //if not creates
 		}
-		for { //Every 10 second,saves into a file
-			time.Sleep(time.Second * sec)
+		for { //Every 1 minute ,saves into a file
+			time.Sleep(time.Minute * min)
 			tm := time.Now().Unix() //Timestamp
 			datas.saveJson(strconv.FormatInt(tm, 10))
 		}
 	}()
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 
 }
 
