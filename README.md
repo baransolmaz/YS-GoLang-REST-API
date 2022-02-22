@@ -1,7 +1,7 @@
 # YS-GoLang-REST-API
 
 A REST-API service that works as an in memory key-value store  
-[API Doc Link](https://documenter.getpostman.com/view/19679607/UVknsb2t){:target="_blank"}  
+[API Doc Link](https://documenter.getpostman.com/view/19679607/UVknsb2t)  
 Requests:  
 &emsp; -GET  
 &emsp;  &emsp; Takes a key string and returns the value of the key.If the key is exist, responds 200;if not responds 404  
