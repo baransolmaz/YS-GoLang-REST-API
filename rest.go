@@ -8,12 +8,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
-	"strings"
 	"time"
 )
-
-const min = 1
 
 type Data struct {
 	Key   string "json:\"Key\""
@@ -21,7 +19,7 @@ type Data struct {
 }
 type Datas map[string]string
 
-func newDatas() *Datas {
+func createNew() *Datas {
 	var d Datas
 	current, _ := os.Getwd()                          //Get current directory path
 	list, _ := filepath.Glob(current + "/tmp/*.json") //Read all .json files
@@ -79,7 +77,7 @@ func (d *Datas) delete(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("EndPoint Hit: DELETE EndPoint")
 	w.WriteHeader(http.StatusNoContent) //204
 }
-func (d *Datas) datas(w http.ResponseWriter, r *http.Request) {
+func (d *Datas) requests(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET": //Get Endpoint
 		d.get(w, r)
@@ -100,7 +98,8 @@ func (d *Datas) datas(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (d Datas) homepage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Homepage EndPoint Hit")
+	fmt.Fprintf(w, "Homepage EndPoint Hit\n")
+	fmt.Fprintf(w, "For requests, Go /requests")
 }
 func (d Datas) view(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("EndPoint Hit: VIEW EndPoint")
@@ -112,53 +111,33 @@ func (d Datas) saveJson(fileName string) {
 	current, _ := os.Getwd()                                            //Get current directory path
 	ioutil.WriteFile(current+"/tmp/"+fileName+".json", byteSlice, 0666) //Write in File
 }
-func (d Datas) loadJson(fileName []string) *Datas {
-	if len(fileName) == 0 { //No Json file exist
+func (d Datas) loadJson(fileNames []string) *Datas {
+	if len(fileNames) == 0 { //No Json file exist
 		return &Datas{ //Create New
 			"Test_Key0": "Test_Value0",
 			"Test_Key1": "Test_Value1",
 		}
 	}
 	//Json Files exist
-	lastFile := last(fileName)                //Get Last Created File
-	byteSlice, _ := ioutil.ReadFile(lastFile) //Read file
+	sort.Strings(fileNames)                                      //Get Last Created File
+	byteSlice, _ := ioutil.ReadFile(fileNames[len(fileNames)-1]) //Read file
 	saved := Datas{}
 	json.Unmarshal(byteSlice, &saved) //Save in
 	return &saved
 }
-func handleRequests(port string) {
-	datas := newDatas()
+func handleRequests(port string, n int64) {
+	datas := createNew()
 	http.HandleFunc("/", datas.homepage)
-	http.HandleFunc("/datas", datas.datas)
+	http.HandleFunc("/requests", datas.requests)
 	go func() { //Go routine
 		if _, err := os.Stat("tmp"); os.IsNotExist(err) { //Checks if 'tmp' folder exist
 			os.Mkdir("tmp", 0755) //if not creates
 		}
-		for { //Every 1 minute ,saves into a file
-			time.Sleep(time.Minute * min)
+		for { //Every n minute ,saves into a file
+			time.Sleep(time.Minute * time.Duration(n))
 			tm := time.Now().Unix() //Timestamp
 			datas.saveJson(strconv.FormatInt(tm, 10))
 		}
 	}()
 	log.Fatal(http.ListenAndServe(":"+port, nil))
-
-}
-
-//Returns Last Created File Name
-func last(arr []string) string {
-	if len(arr) == 2 {
-		if strings.Compare(arr[0], arr[1]) == 1 {
-			return arr[0]
-		}
-		return arr[1]
-	} else if len(arr) == 1 {
-		return arr[0]
-	}
-	var mid int = len(arr) / 2
-	left := last(arr[:mid])
-	right := last(arr[mid:])
-	if strings.Compare(left, right) == 1 {
-		return left
-	}
-	return right
 }

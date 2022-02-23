@@ -1,7 +1,7 @@
 # YS-GoLang-REST-API
 
 A REST-API service that works as an in memory key-value store  
-[API Doc Link](https://documenter.getpostman.com/view/19679607/UVknsb2t)  
+[API Doc Link](https://documenter.getpostman.com/view/19679607/UVkntw31)  
 Requests:  
 &emsp; -GET  
 &emsp;  &emsp; Takes a key string and returns the value of the key.If the key is exist, responds 200;if not responds 404  
@@ -22,3 +22,6 @@ Respond Codes:
   
 Note:  
 &emsp; If you want the put request does not create new pair when the given key is not exist,you need to toggle block comment.  
+  
+To Build:  
+&emsp; go run main.go rest.go  
