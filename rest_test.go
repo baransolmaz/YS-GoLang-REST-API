@@ -11,7 +11,7 @@ import (
 func TestFileLoad(t *testing.T) {
 	d := Datas{}
 	current, _ := os.Getwd()
-	name := []string{(current + "/tmp/test.json")}
+	name := []string{(current + "/tmp/0.json")}
 	read := *d.loadJson(name)
 	if len(read) != 3 {
 		t.Errorf("Expected: 3, Size: %d", len(read))
@@ -49,13 +49,13 @@ func TestFileSave(t *testing.T) {
 }
 func TestGetRequest(t *testing.T) {
 	bodyReader := strings.NewReader("{\"Key\":\"Test_Key0\"}")
-	req := httptest.NewRequest(http.MethodGet, "/datas", bodyReader)
+	req := httptest.NewRequest(http.MethodGet, "/requests", bodyReader)
 	w := httptest.NewRecorder()
 	d := Datas{}
 	current, _ := os.Getwd()
-	name := []string{(current + "/tmp/test.json")}
+	name := []string{(current + "/tmp/0.json")}
 	read := *d.loadJson(name)
-	read.datas(w, req)
+	read.requests(w, req)
 	res := w.Result()
 
 	defer res.Body.Close()
@@ -69,13 +69,13 @@ func TestGetRequest(t *testing.T) {
 }
 func TestPutRequest(t *testing.T) {
 	bodyReader := strings.NewReader("{\"Key\":\"Test_Key0\",\"Value\":\"Test_Put\"}")
-	req := httptest.NewRequest(http.MethodPut, "/datas", bodyReader)
+	req := httptest.NewRequest(http.MethodPut, "/requests", bodyReader)
 	w := httptest.NewRecorder()
 	d := Datas{}
 	current, _ := os.Getwd()
-	name := []string{(current + "/tmp/test.json")}
+	name := []string{(current + "/tmp/0.json")}
 	read := *d.loadJson(name)
-	read.datas(w, req)
+	read.requests(w, req)
 	res := w.Result()
 
 	defer res.Body.Close()
@@ -86,16 +86,15 @@ func TestPutRequest(t *testing.T) {
 	} else if res.StatusCode != http.StatusNoContent {
 		t.Errorf("Status No Content")
 	}
-
 }
 func TestViewRequest(t *testing.T) {
-	req := httptest.NewRequest("VIEW", "/datas", nil)
+	req := httptest.NewRequest("VIEW", "/requests", nil)
 	w := httptest.NewRecorder()
 	d := Datas{}
 	current, _ := os.Getwd()
-	name := []string{(current + "/tmp/test.json")}
+	name := []string{(current + "/tmp/0.json")}
 	read := *d.loadJson(name)
-	read.datas(w, req)
+	read.requests(w, req)
 	res := w.Result()
 
 	defer res.Body.Close()
@@ -104,13 +103,13 @@ func TestViewRequest(t *testing.T) {
 	}
 }
 func TestDeleteRequest(t *testing.T) {
-	req := httptest.NewRequest(http.MethodDelete, "/datas", nil)
+	req := httptest.NewRequest(http.MethodDelete, "/requests", nil)
 	w := httptest.NewRecorder()
 	d := Datas{}
 	current, _ := os.Getwd()
-	name := []string{(current + "/tmp/test.json")}
+	name := []string{(current + "/tmp/0.json")}
 	read := *d.loadJson(name)
-	read.datas(w, req)
+	read.requests(w, req)
 	res := w.Result()
 
 	defer res.Body.Close()
@@ -123,5 +122,4 @@ func TestDeleteRequest(t *testing.T) {
 	if read["Key"] != "" {
 		t.Errorf("Expected: \"\", Recieved: %s", read["Key"])
 	}
-
 }

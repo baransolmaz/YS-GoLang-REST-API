@@ -1,7 +1,8 @@
 package main
 
 const port = "8080"
+const saveInternal_minute = 1
 
 func main() {
-	handleRequests(port)
+	handleRequests(port, saveInternal_minute)
 }
